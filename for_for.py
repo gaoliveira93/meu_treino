@@ -7,14 +7,15 @@ estoque = [
 ]
 fabricas = ['Lira Manufacturing', 'Fábrica Hashtag', 'Python Manufaturas', 'Produções e Cia', 'Manufatura e Cia']
 nivel_minimo = 50
-factores_below_lvl = {}
 
-for i, items in enumerate(estoque):
-    for item in items:
-        if item < nivel_minimo:
-            if fabricas[i] in factores_below_lvl:
-                factores_below_lvl[fabricas[i]].append(item)
+factories_low_level = {}
+
+for i ,est in enumerate(estoque):
+    for low_lvl in est:
+        if low_lvl < nivel_minimo:
+            if fabricas[i] in factories_low_level:
+                factories_low_level[fabricas[i]].append(low_lvl)
             else:
-                factores_below_lvl[fabricas[i]] = [item]
+                factories_low_level[fabricas[i]].append = low_lvl
 
-print(factores_below_lvl)
+print(factories_low_level)
