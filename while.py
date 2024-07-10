@@ -1,4 +1,3 @@
-
 venda = []
 
 while True:
