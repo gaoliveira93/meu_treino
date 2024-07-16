@@ -2,7 +2,7 @@ import customtkinter
 import tkinter as tk
 from tkinter import ttk
 import pandas as pd
-import numpy
+import numpy as np
 
 customtkinter.set_appearance_mode("System")
 customtkinter.set_default_color_theme("dark-blue")
@@ -37,15 +37,20 @@ class CustomWidgets:
                 label_widget = customtkinter.CTkLabel(master=self.master, width=10, height=10, text=label, fg_color='#292929', corner_radius=0)
                 label_widget.place(x=x_label, y=y_label)
         
-        # Record Button
-        if 'Record_Button' not in self.exclude_widgets:
-            self.Record_Button = customtkinter.CTkButton(master=self.master, width=150, height=40, border_width=2, text='Gravar', command=self.generate_table)
+        # Calculate Button
+        if 'Calculate_Button' not in self.exclude_widgets:
+            self.Record_Button = customtkinter.CTkButton(master=self.master, width=150, height=40, border_width=2, text='Calcular', command=self.generate_table)
             self.Record_Button.place(x=950, y=100)
         
         # Clean Button
         if 'Clean_Button' not in self.exclude_widgets:
             self.Clean_Button = customtkinter.CTkButton(master=self.master, width=150, height=40, border_width=2, text='Limpar', compound='bottom', fg_color='#9C0908')
             self.Clean_Button.place(x=950, y=30)
+
+        # Record Button
+        if 'Record_Button' not in self.exclude_widgets:
+            self.Record_Button = customtkinter.CTkButton(master=self.master, width=150, height=40, border_width=2, text='Gravar', compound='bottom')
+            self.Record_Button.place(x=950, y=170)
 
     def generate_table(self):
         data_dict = {key: self.entries[key].get() for key in self.entries}
@@ -66,7 +71,28 @@ class CustomWidgets:
             self.treeview.heading(col, text=col)
             self.treeview.column(col, width=98, stretch=tk.NO, minwidth=50, anchor='center')
         
-        self.treeview.place(x=10, y=350, width=2000, height=400) 
+        self.treeview.place(x=10, y=350, width=2000, height=400)
+
+    def create_array(self):
+        Anual_USD = float((self.entries['Cost_Tera'].get()) * 0.85)
+        Value_dolar = float(self.entries['Dolar_Price'].get())
+        Month_USD = float(Anual_USD/12)
+        Anual_Brl = float(Anual_USD * Value_dolar)
+        Cyclopay_Tax = float((self.entries['Cyclopay_Tax'].get()) * Month_Brl)
+        IOFF = float((self.entries['IOF %'].get()) * Month_USD)
+        Fix_Tax_Cyclopay = float(self.entries['Fix_Tax_Cyclopay'].get())
+        Initial_Tax = float((self.entries['Initial_Tax'].get()) * Month_Brl)
+        Server_Cost = float(self.entries['Server_Cost'].get())
+        Cost_Invoice = float(self.entries['Cost_Invoice'].get())
+        Margim = float(((Month_Brl + Cyclopay_Tax + IOFF + Fix_Tax_Cyclopay + Initial_Tax + Server_Cost + Cost_Invoice)/1-self.entries['Margim'].get()) / (Month_Brl + Cyclopay_Tax + IOFF + Fix_Tax_Cyclopay + Initial_Tax + Server_Cost + Cost_Invoice))
+        Month_Brl = float(Month_USD * Anual_USD)
+        Month_Brl_CC = float(Month_Brl * 1.065)
+        Month_USD_CC = float(Month_Brl_CC * Value_dolar)
+        TreeView_array = np.array([])
+
+
+
+
 
 # Exemplo de uso:
 app = customtkinter.CTk()
