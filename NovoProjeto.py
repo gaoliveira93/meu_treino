@@ -52,10 +52,10 @@ class CustomWidgets:
             self.Record_Button = customtkinter.CTkButton(master=self.master, width=150, height=40, border_width=2, text='Gravar', compound='bottom')
             self.Record_Button.place(x=950, y=170)
 
-    def generate_table(self):
-        data_dict = {key: self.entries[key].get() for key in self.entries}
-        self.data.loc[len(self.data)] = data_dict
-        self.update_table()
+ #   def generate_table(self):
+ #       data_dict = {key: self.entries[key].get() for key in self.entries}
+ #       self.data.loc[len(self.data)] = data_dict
+  #      self.update_table()
 
     def update_table(self):
         for row in self.treeview.get_children():
@@ -73,25 +73,59 @@ class CustomWidgets:
         
         self.treeview.place(x=10, y=350, width=2000, height=400)
 
-    def create_array(self):
-        Anual_USD = float((self.entries['Cost_Tera'].get()) * 0.85)
+    def generate_table(self):
+        Teras = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 30, 40, 50]
+
+        Anual_USD = float(self.entries['Cost_Tera'].get())
         Value_dolar = float(self.entries['Dolar_Price'].get())
-        Month_USD = float(Anual_USD/12)
+        Month_USD = float(Anual_USD)
         Anual_Brl = float(Anual_USD * Value_dolar)
-        Cyclopay_Tax = float((self.entries['Cyclopay_Tax'].get()) * Month_Brl)
-        IOFF = float((self.entries['IOF %'].get()) * Month_USD)
+        Month_Brl = float(Month_USD * Anual_USD)
+        Cyclopay_Tax = float((self.entries['Cyclopay_Tax'].get()))
+        IOFF = float((self.entries['IOF'].get()))
         Fix_Tax_Cyclopay = float(self.entries['Fix_Tax_Cyclopay'].get())
-        Initial_Tax = float((self.entries['Initial_Tax'].get()) * Month_Brl)
+        Initial_Tax = float((self.entries['Initial_Tax'].get()))
         Server_Cost = float(self.entries['Server_Cost'].get())
         Cost_Invoice = float(self.entries['Cost_Invoice'].get())
         Margim = float(((Month_Brl + Cyclopay_Tax + IOFF + Fix_Tax_Cyclopay + Initial_Tax + Server_Cost + Cost_Invoice)/1-self.entries['Margim'].get()) / (Month_Brl + Cyclopay_Tax + IOFF + Fix_Tax_Cyclopay + Initial_Tax + Server_Cost + Cost_Invoice))
-        Month_Brl = float(Month_USD * Anual_USD)
-        Month_Brl_CC = float(Month_Brl * 1.065)
+        Month_Brl_CC = float(Month_Brl)
+        Cyclopay_Tax = float((self.entries['Cyclopay_Tax'].get()))
         Month_USD_CC = float(Month_Brl_CC * Value_dolar)
-        TreeView_array = np.array([])
 
+        result_Anual_USD = np.array([t * (Anual_USD * 0.85) for t in Teras])
+        result_Value_dolar = np.array([t * Value_dolar for t in Teras])
+        result_Month_USD = np.array([t * (Month_USD / 12) for t in Teras])
+        result_Anual_Brl = np.array([t * Anual_Brl for t in Teras])
+        result_Cyclopay_Tax = np.array([t * (Cyclopay_Tax * Month_Brl) for t in Teras])
+        result_IOFF = np.array([t * (IOFF * Month_USD) for t in Teras])
+        result_Fix_Tax_Cyclopay = np.array([t * Fix_Tax_Cyclopay for t in Teras])
+        result_Initial_Tax = np.array([t * (Initial_Tax * Month_Brl) for t in Teras])
+        result_Server_Cost = np.array([t * Server_Cost for t in Teras])
+        result_Cost_Invoice = np.array([t * Cost_Invoice for t in Teras])
+        result_Margim = np.array([t * Margim for t in Teras])
+        result_Month_Brl = np.array([t * Month_Brl for t in Teras])
+        result_Month_Brl_CC = np.array([t * (Month_Brl_CC * 1.065) for t in Teras])
+        result_Month_USD_CC = np.array([t * Month_USD_CC for t in Teras])
 
-
+        for i in range(len(Teras)):
+            self.treeview.insert('', 'end', text=i, values=(
+                Teras[i],
+                result_Anual_USD[i],
+                result_Value_dolar[i],
+                result_Month_USD[i],
+                result_Anual_Brl[i],
+                result_Cyclopay_Tax[i],
+                result_IOFF[i],
+                result_Fix_Tax_Cyclopay[i],
+                result_Initial_Tax[i],
+                result_Server_Cost[i],
+                result_Cost_Invoice[i],
+                result_Margim[i],
+                result_Month_Brl[i],
+                result_Month_Brl_CC[i],
+                result_Month_USD_CC[i]
+                ))
+        self.update_table()
 
 
 # Exemplo de uso:
