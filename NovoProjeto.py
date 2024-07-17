@@ -52,11 +52,8 @@ class CustomWidgets:
             self.Record_Button = customtkinter.CTkButton(master=self.master, width=150, height=40, border_width=2, text='Gravar', compound='bottom')
             self.Record_Button.place(x=950, y=170)
 
- #   def generate_table(self):
- #       data_dict = {key: self.entries[key].get() for key in self.entries}
- #       self.data.loc[len(self.data)] = data_dict
-  #      self.update_table()
 
+            
     def update_table(self):
         for row in self.treeview.get_children():
             self.treeview.delete(row)
@@ -74,7 +71,7 @@ class CustomWidgets:
         self.treeview.place(x=10, y=350, width=2000, height=400)
 
     def generate_table(self):
-        Teras = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 30, 40, 50]
+        Teras = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.0, 30.0, 40.0, 50.0]
 
         Anual_USD = float(self.entries['Cost_Tera'].get())
         Value_dolar = float(self.entries['Dolar_Price'].get())
@@ -87,7 +84,7 @@ class CustomWidgets:
         Initial_Tax = float((self.entries['Initial_Tax'].get()))
         Server_Cost = float(self.entries['Server_Cost'].get())
         Cost_Invoice = float(self.entries['Cost_Invoice'].get())
-        Margim = float(((Month_Brl + Cyclopay_Tax + IOFF + Fix_Tax_Cyclopay + Initial_Tax + Server_Cost + Cost_Invoice)/1-self.entries['Margim'].get()) / (Month_Brl + Cyclopay_Tax + IOFF + Fix_Tax_Cyclopay + Initial_Tax + Server_Cost + Cost_Invoice))
+        #Margim = float(((Month_Brl + Cyclopay_Tax + IOFF + Fix_Tax_Cyclopay + Initial_Tax + Server_Cost + Cost_Invoice)/1-self.entries['Margim'].get()) / (Month_Brl + Cyclopay_Tax + IOFF + Fix_Tax_Cyclopay + Initial_Tax + Server_Cost + Cost_Invoice))
         Month_Brl_CC = float(Month_Brl)
         Cyclopay_Tax = float((self.entries['Cyclopay_Tax'].get()))
         Month_USD_CC = float(Month_Brl_CC * Value_dolar)
@@ -102,7 +99,7 @@ class CustomWidgets:
         result_Initial_Tax = np.array([t * (Initial_Tax * Month_Brl) for t in Teras])
         result_Server_Cost = np.array([t * Server_Cost for t in Teras])
         result_Cost_Invoice = np.array([t * Cost_Invoice for t in Teras])
-        result_Margim = np.array([t * Margim for t in Teras])
+        #result_Margim = np.array([t * Margim for t in Teras])
         result_Month_Brl = np.array([t * Month_Brl for t in Teras])
         result_Month_Brl_CC = np.array([t * (Month_Brl_CC * 1.065) for t in Teras])
         result_Month_USD_CC = np.array([t * Month_USD_CC for t in Teras])
@@ -120,7 +117,7 @@ class CustomWidgets:
                 result_Initial_Tax[i],
                 result_Server_Cost[i],
                 result_Cost_Invoice[i],
-                result_Margim[i],
+               # result_Margim[i],
                 result_Month_Brl[i],
                 result_Month_Brl_CC[i],
                 result_Month_USD_CC[i]
