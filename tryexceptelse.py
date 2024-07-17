@@ -1,44 +1,154 @@
-import numpy as np
+import customtkinter
 import tkinter as tk
+from tkinter import ttk
+import pandas as pd
+import numpy as np
 
-class App:
-    def __init__(self, root):
+customtkinter.set_appearance_mode("System")
+customtkinter.set_default_color_theme("dark-blue")
+
+index = ['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','30','40','50']
+columns = ['Espaço TB', 'ANUAL(U$)', 'MENSAL(U$)', 'ANUAL(R$)', 'MENSAL(R$)', 'Taxa % Cyclopay', 'IOF %', 'Taxa fixa Cyclopay', 'Impostos', 'Custo servidor', 'Custo NF', 'Margem', 'VENDA MENSAL (R$)', 'MENSAL câmbio cartão', 'VALOR (Dólar)']
+
+class CustomWidgets:
+    def __init__(self, master, exclude_widgets=[]):
+        self.master = master
+        self.exclude_widgets = exclude_widgets
         self.entries = {}
-        self.create_widgets(root)
-
-    def create_widgets(self, root):
-        # Criação dos campos de entrada
-        labels = ['Cost_Tera', 'Dolar_Price', 'Cyclopay_Tax', 'IOF %']
-        for label in labels:
-            tk.Label(root, text=label + ":").pack()
-            self.entries[label] = tk.Entry(root)
-            self.entries[label].pack()
+        self.create_widgets()
         
-        # Botão para criar o array
-        tk.Button(root, text="Calcular", command=self.create_array).pack()
+    def create_widgets(self):
+        widget_params = [
+            ('Cyclopay_Tax', 'Taxa Cyclopay :', 750, 170, 620, 180),
+            ('Initial_Tax', 'Imposto :', 450, 30, 310, 40),
+            ('Cost_Tera', 'Custo por Terabyte :', 750, 30, 620, 40),
+            ('Cost_Invoice', 'Custo Nota Fiscal :', 750, 100, 620, 110),
+            ('Server_Cost', 'Custo Servidor :', 130, 30, 20, 40),
+            ('Dolar_Price', 'Câmbio do dólar :', 130, 100, 15, 110),
+            ('Margim', 'Margem de Lucro :', 130, 170, 15, 180),
+            ('IOF', 'IOF :', 450, 100, 310, 110),
+            ('Fix_Tax_Cyclopay', 'Taxa Fixa Cyclopay :', 450, 170, 310, 180)
+        ]
 
-    def create_array(self):
-        # Lista de dados
-        dados = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        for key, label, x_entry, y_entry, x_label, y_label in widget_params:
+            if key not in self.exclude_widgets:
+                self.entries[key] = customtkinter.CTkEntry(master=self.master, width=150, height=40, border_width=2, justify='center')
+                self.entries[key].place(x=x_entry, y=y_entry)
+                label_widget = customtkinter.CTkLabel(master=self.master, width=10, height=10, text=label, fg_color='#292929', corner_radius=0)
+                label_widget.place(x=x_label, y=y_label)
+        
+        # Calculate Button
+        if 'Calculate_Button' not in self.exclude_widgets:
+            self.Record_Button = customtkinter.CTkButton(master=self.master, width=150, height=40, border_width=2, text='Calcular', command=self.generate_table)
+            self.Record_Button.place(x=950, y=100)
+        
+        # Clean Button
+        if 'Clean_Button' not in self.exclude_widgets:
+            self.Clean_Button = customtkinter.CTkButton(master=self.master, width=150, height=40, border_width=2, text='Limpar', compound='bottom', fg_color='#9C0908')
+            self.Clean_Button.place(x=950, y=30)
 
-        # Coleta dos valores das entradas
-        Anual_USD = float(self.entries['Cost_Tera'].get()) * 0.85
-        Value_dolar = float(self.entries['Dolar_Price'].get())
-        Month_USD = Anual_USD / 12
-        Anual_Brl = Anual_USD * Value_dolar
-        Cyclopay_Tax = float(self.entries['Cyclopay_Tax'].get())
-        IOFF = float(self.entries['IOF %'].get())
+        # Record Button
+        if 'Record_Button' not in self.exclude_widgets:
+            self.Record_Button = customtkinter.CTkButton(master=self.master, width=150, height=40, border_width=2, text='Gravar', compound='bottom')
+            self.Record_Button.place(x=950, y=170)
 
-        # Multiplicação dos dados pelos valores das entradas
-        result_array = np.array([d * Anual_USD for d in dados] +
-                                [d * Value_dolar for d in dados] +
-                                [d * Month_USD for d in dados] +
-                                [d * Anual_Brl for d in dados] +
-                                [d * Cyclopay_Tax for d in dados] +
-                                [d * IOFF for d in dados])
+    def update_table(self):
+        for row in self.treeview.get_children():
+            self.treeview.delete(row)
+        for index, row in self.data.iterrows():
+            self.treeview.insert('', 'end', values=row.tolist())
 
-        print(result_array)
+    def create_table(self):
+        self.data = pd.DataFrame(columns=columns, index=index)
+        self.treeview = ttk.Treeview(self.master, columns=columns, show="headings")
 
-root = tk.Tk()
-app = App(root)
-root.mainloop()
+        for col in columns:
+            self.treeview.heading(col, text=col)
+            self.treeview.column(col, width=98, stretch=tk.NO, minwidth=50, anchor='center')
+        
+        self.treeview.place(x=10, y=350, width=2000, height=400)
+
+    def generate_table(self):
+        Teras = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.0, 30.0, 40.0, 50.0]
+
+        try:
+            Anual_USD = float(self.entries['Cost_Tera'].get())
+            Value_dolar = float(self.entries['Dolar_Price'].get())
+            Cyclopay_Tax = float(self.entries['Cyclopay_Tax'].get())
+            IOFF = float(self.entries['IOF'].get())
+            Fix_Tax_Cyclopay = float(self.entries['Fix_Tax_Cyclopay'].get())
+            Initial_Tax = float(self.entries['Initial_Tax'].get())
+            Server_Cost = float(self.entries['Server_Cost'].get())
+            Cost_Invoice = float(self.entries['Cost_Invoice'].get())
+            Month_USD = Anual_USD / 12
+            Anual_Brl = Anual_USD * Value_dolar
+            Month_Brl = Month_USD * Value_dolar
+            Month_Brl_CC = Month_Brl * 1.065
+            Month_USD_CC = Month_Brl_CC / Value_dolar
+
+            result_Anual_USD = np.array([t * (Anual_USD * 0.85) for t in Teras])
+            result_Value_dolar = np.array([t * Value_dolar for t in Teras])
+            result_Month_USD = np.array([t * (Month_USD / 12) for t in Teras])
+            result_Anual_Brl = np.array([t * Anual_Brl for t in Teras])
+            result_Cyclopay_Tax = np.array([t * (Cyclopay_Tax * Month_Brl) for t in Teras])
+            result_IOFF = np.array([t * (IOFF * Month_USD) for t in Teras])
+            result_Fix_Tax_Cyclopay = np.array([t * Fix_Tax_Cyclopay for t in Teras])
+            result_Initial_Tax = np.array([t * (Initial_Tax * Month_Brl) for t in Teras])
+            result_Server_Cost = np.array([t * Server_Cost for t in Teras])
+            result_Cost_Invoice = np.array([t * Cost_Invoice for t in Teras])
+            result_Month_Brl = np.array([t * Month_Brl for t in Teras])
+            result_Month_Brl_CC = np.array([t * Month_Brl_CC for t in Teras])
+            result_Month_USD_CC = np.array([t * Month_USD_CC for t in Teras])
+
+            self.data = pd.DataFrame({
+                'Espaço TB': Teras,
+                'ANUAL(U$)': result_Anual_USD,
+                'MENSAL(U$)': result_Month_USD,
+                'ANUAL(R$)': result_Anual_Brl,
+                'MENSAL(R$)': result_Month_Brl,
+                'Taxa % Cyclopay': result_Cyclopay_Tax,
+                'IOF %': result_IOFF,
+                'Taxa fixa Cyclopay': result_Fix_Tax_Cyclopay,
+                'Impostos': result_Initial_Tax,
+                'Custo servidor': result_Server_Cost,
+                'Custo NF': result_Cost_Invoice,
+                'Margem': 0,  # Você pode adicionar a lógica de margem aqui
+                'VENDA MENSAL (R$)': result_Month_Brl,
+                'MENSAL câmbio cartão': result_Month_Brl_CC,
+                'VALOR (Dólar)': result_Month_USD_CC
+            })
+
+            self.update_table()
+
+        except ValueError as e:
+            print(f"Erro de conversão: {e}")
+            # Você pode adicionar aqui uma mensagem de erro no aplicativo tkinter se desejar
+
+# Exemplo de uso:
+app = customtkinter.CTk()
+app.title('Calculadora de Custo')
+app.geometry('1200x600')
+
+my_tab = customtkinter.CTkTabview(app, height=800, width=800)
+my_tab.pack(side="top", fill="x", pady=10)
+
+# Abas
+tab1 = my_tab.add('Assinatura')
+tab2 = my_tab.add('Por uso')
+
+# Frames
+frame1 = customtkinter.CTkFrame(master=tab1, width=1500, height=1200)
+frame1.pack(fill='both', expand=True)
+
+frame2 = customtkinter.CTkFrame(master=tab2, width=1500, height=1200)
+frame2.pack(fill='both', expand=True)
+
+# Instancia os widgets personalizados no frame1
+custom_widgets1 = CustomWidgets(frame1)
+custom_widgets1.create_table()
+
+# Instancia os widgets personalizados no frame2, excluindo alguns widgets
+custom_widgets2 = CustomWidgets(frame2, exclude_widgets=['Cyclopay_Tax', 'Cost_Invoice'])
+custom_widgets2.create_table()
+
+app.mainloop()
