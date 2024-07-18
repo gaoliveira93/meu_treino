@@ -95,7 +95,7 @@ class CustomWidgets:
             result_Fix_Tax_Cyclopay = np.array([t * Fix_Tax_Cyclopay for t in Teras])
             result_Initial_Tax = np.array([t * (Initial_Tax * Month_Brl) for t in Teras])
             result_Server_Cost = np.array([t * Server_Cost for t in Teras])
-            result_Cost_Invoice = np.array([t * Cost_Invoice for t in Teras])
+            result_Cost_Invoice = np.array([Cost_Invoice for t in Teras])
             result_Month_Brl = np.array([t * Month_Brl for t in Teras])
             result_Month_Brl_CC = np.array([t * Month_Brl_CC for t in Teras])
             result_Month_USD_CC = np.array([t * Month_USD_CC for t in Teras])
