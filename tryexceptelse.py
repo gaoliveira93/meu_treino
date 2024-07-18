@@ -72,23 +72,23 @@ class CustomWidgets:
         Teras = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.0, 30.0, 40.0, 50.0]
 
         try:
-            Anual_USD = float(self.entries['Cost_Tera'].get())
-            Value_dolar = float(self.entries['Dolar_Price'].get())
-            Cyclopay_Tax = float(self.entries['Cyclopay_Tax'].get())
-            IOFF = float(self.entries['IOF'].get())
-            Fix_Tax_Cyclopay = float(self.entries['Fix_Tax_Cyclopay'].get())
-            Initial_Tax = float(self.entries['Initial_Tax'].get())
-            Server_Cost = float(self.entries['Server_Cost'].get())
-            Cost_Invoice = float(self.entries['Cost_Invoice'].get())
-            Month_USD = Anual_USD / 12
-            Anual_Brl = Anual_USD * Value_dolar
-            Month_Brl = Month_USD * Value_dolar
-            Month_Brl_CC = Month_Brl * 1.065
-            Month_USD_CC = Month_Brl_CC / Value_dolar
+            Anual_USD = round(float(self.entries['Cost_Tera'].get()), 2)
+            Value_dolar = round(float(self.entries['Dolar_Price'].get()), 2)
+            Cyclopay_Tax = round(float(self.entries['Cyclopay_Tax'].get()), 2)
+            IOFF = round(float(self.entries['IOF'].get()), 2)
+            Fix_Tax_Cyclopay = round(float(self.entries['Fix_Tax_Cyclopay'].get()), 2)
+            Initial_Tax = round(float(self.entries['Initial_Tax'].get()), 2)
+            Server_Cost = round(float(self.entries['Server_Cost'].get()), 2)
+            Cost_Invoice = round(float(self.entries['Cost_Invoice'].get()), 2)
+            Month_USD = round((Anual_USD / 12), 2)
+            Anual_Brl = round((Anual_USD * Value_dolar), 2)
+            Month_Brl = round((Month_USD * Value_dolar), 2)
+            Month_Brl_CC = round((Month_Brl * 1.065), 2)
+            Month_USD_CC = round((Month_Brl_CC / Value_dolar), 2)
 
             result_Anual_USD = np.array([t * (Anual_USD * 0.85) for t in Teras])
             result_Value_dolar = np.array([t * Value_dolar for t in Teras])
-            result_Month_USD = np.array([t * (Month_USD / 12) for t in Teras])
+            result_Month_USD = np.array([t * Month_USD for t in Teras])
             result_Anual_Brl = np.array([t * Anual_Brl for t in Teras])
             result_Cyclopay_Tax = np.array([t * (Cyclopay_Tax * Month_Brl) for t in Teras])
             result_IOFF = np.array([t * (IOFF * Month_USD) for t in Teras])
