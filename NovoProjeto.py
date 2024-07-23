@@ -59,7 +59,7 @@ class CustomWidgets:
             self.treeview.insert('', 'end', values=row.tolist())
 
     def create_table(self):
-        self.data = pd.DataFrame(columns=columns, index=index)
+        self.data = pd.DataFrame(columns=columns)
         self.treeview = ttk.Treeview(self.master, columns=columns, show="headings")
 
         for col in columns:
@@ -86,19 +86,19 @@ class CustomWidgets:
             Month_Brl_CC = round((Month_Brl * 1.065), 2)
             Month_USD_CC = round((Month_Brl_CC / Value_dolar), 2)
 
-            result_Anual_USD = np.array([t * (Anual_USD * 0.85) for t in Teras])
-            result_Value_dolar = np.array([t * Value_dolar for t in Teras])
-            result_Month_USD = np.array([t * Month_USD for t in Teras])
-            result_Anual_Brl = np.array([t * Anual_Brl for t in Teras])
-            result_Cyclopay_Tax = np.array([t * (Cyclopay_Tax * Month_Brl) for t in Teras])
-            result_IOFF = np.array([t * (IOFF * Month_USD) for t in Teras])
-            result_Fix_Tax_Cyclopay = np.array([t * Fix_Tax_Cyclopay for t in Teras])
-            result_Initial_Tax = np.array([t * (Initial_Tax * Month_Brl) for t in Teras])
-            result_Server_Cost = np.array([t * Server_Cost for t in Teras])
-            result_Cost_Invoice = np.array([t * Cost_Invoice for t in Teras])
-            result_Month_Brl = np.array([t * Month_Brl for t in Teras])
-            result_Month_Brl_CC = np.array([t * Month_Brl_CC for t in Teras])
-            result_Month_USD_CC = np.array([t * Month_USD_CC for t in Teras])
+            result_Anual_USD = np.round([t * (Anual_USD * 0.85) for t in Teras])
+            result_Value_dolar = np.round([t * Value_dolar for t in Teras])
+            result_Month_USD = np.round([t * Month_USD for t in Teras])
+            result_Anual_Brl = np.round([t * Anual_Brl for t in Teras])
+            result_Cyclopay_Tax = np.round([t * (Cyclopay_Tax * Month_Brl) for t in Teras])
+            result_IOFF = np.round([t * (IOFF * Month_USD) for t in Teras])
+            result_Fix_Tax_Cyclopay = np.round([t * Fix_Tax_Cyclopay for t in Teras])
+            result_Initial_Tax = np.round([t * (Initial_Tax * Month_Brl) for t in Teras])
+            result_Server_Cost = np.round([t * Server_Cost for t in Teras])
+            result_Cost_Invoice = np.round([t * Cost_Invoice for t in Teras])
+            result_Month_Brl = np.round([t * Month_Brl for t in Teras])
+            result_Month_Brl_CC = np.round([t * Month_Brl_CC for t in Teras])
+            result_Month_USD_CC = np.round([t * Month_USD_CC for t in Teras])
 
             self.data = pd.DataFrame({
                 'Espaço TB': Teras,
