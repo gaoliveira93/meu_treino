@@ -7,7 +7,6 @@ import numpy as np
 customtkinter.set_appearance_mode("System")
 customtkinter.set_default_color_theme("dark-blue")
 
-index = ['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','30','40','50']
 columns = ['Espaço TB', 'ANUAL(U$)', 'MENSAL(U$)', 'ANUAL(R$)', 'MENSAL(R$)', 'Taxa % Cyclopay', 'IOF %', 'Taxa fixa Cyclopay', 'Impostos', 'Custo servidor', 'Custo NF', 'Margem', 'VENDA MENSAL (R$)', 'MENSAL câmbio cartão', 'VALOR (Dólar)']
 
 class CustomWidgets:
@@ -44,18 +43,18 @@ class CustomWidgets:
         
         # Clean Button
         if 'Clean_Button' not in self.exclude_widgets:
-            self.Clean_Button = customtkinter.CTkButton(master=self.master, width=150, height=40, border_width=2, text='Limpar', compound='bottom', fg_color='#9C0908')
+            self.Clean_Button = customtkinter.CTkButton(master=self.master, width=150, height=40, border_width=2, text='Limpar', compound='bottom', fg_color='#9C0908', command=self.clean_table)
             self.Clean_Button.place(x=950, y=30)
 
         # Record Button
         if 'Record_Button' not in self.exclude_widgets:
-            self.Record_Button = customtkinter.CTkButton(master=self.master, width=150, height=40, border_width=2, text='Gravar', compound='bottom')
+            self.Record_Button = customtkinter.CTkButton(master=self.master, width=150, height=40, border_width=2, text='Gravar', compound='bottom', command=self.record_server)
             self.Record_Button.place(x=950, y=170)
 
     def update_table(self):
         for row in self.treeview.get_children():
             self.treeview.delete(row)
-        for index, row in self.data.iterrows():
+        for _, row in self.data.iterrows():
             self.treeview.insert('', 'end', values=row.tolist())
 
     def create_table(self):
@@ -67,6 +66,14 @@ class CustomWidgets:
             self.treeview.column(col, width=98, stretch=tk.NO, minwidth=50, anchor='center')
         
         self.treeview.place(x=10, y=350, width=2000, height=400)
+
+    def clean_table(self):
+        for row in self.treeview.get_children():
+            self.treeview.delete(row)
+
+        for entry in self.entries.values():
+            entry.delete(0, tk.END)
+        
 
     def generate_table(self):
         Teras = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.0, 30.0, 40.0, 50.0]
@@ -86,7 +93,7 @@ class CustomWidgets:
             Month_Brl_CC = round((Month_Brl * 1.065), 2)
             Month_USD_CC = round((Month_Brl_CC / Value_dolar), 2)
 
-            result_Anual_USD = np.round([t * (Anual_USD * 0.85) for t in Teras])
+            result_Anual_USD =  np.round([t * (Anual_USD * 0.85) for t in Teras])
             result_Value_dolar = np.round([t * Value_dolar for t in Teras])
             result_Month_USD = np.round([t * Month_USD for t in Teras])
             result_Anual_Brl = np.round([t * Anual_Brl for t in Teras])
