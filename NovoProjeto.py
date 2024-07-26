@@ -9,6 +9,15 @@ customtkinter.set_default_color_theme("dark-blue")
 
 columns = ['Espaço TB', 'ANUAL(U$)', 'MENSAL(U$)', 'ANUAL(R$)', 'MENSAL(R$)', 'Taxa % Cyclopay', 'IOF %', 'Taxa fixa Cyclopay', 'Impostos', 'Custo servidor', 'Custo NF', 'Margem', 'VENDA MENSAL (R$)', 'MENSAL câmbio cartão', 'VALOR (Dólar)']
 
+def validate_decimal(P):
+    if P in ("", ","):
+        return True
+    try:
+        float(P.replace(",", "."))
+        return True
+    except ValueError:
+        return False
+
 class CustomWidgets:
     def __init__(self, master, exclude_widgets=[]):
         self.master = master
@@ -18,7 +27,7 @@ class CustomWidgets:
         
     def create_widgets(self):
         widget_params = [
-            ('Cyclopay_Tax', 'Taxa Cyclopay :', 750, 170, 620, 180),
+            ('Fix_Tax_Cyclopay', 'Taxa Fixa Cyclopay :', 750, 170, 620, 180),
             ('Initial_Tax', 'Imposto :', 450, 30, 310, 40),
             ('Cost_Tera', 'Custo por Terabyte :', 750, 30, 620, 40),
             ('Cost_Invoice', 'Custo Nota Fiscal :', 750, 100, 620, 110),
@@ -26,20 +35,22 @@ class CustomWidgets:
             ('Dolar_Price', 'Câmbio do dólar :', 130, 100, 15, 110),
             ('Margim', 'Margem de Lucro :', 130, 170, 15, 180),
             ('IOF', 'IOF :', 450, 100, 310, 110),
-            ('Fix_Tax_Cyclopay', 'Taxa Fixa Cyclopay :', 450, 170, 310, 180)
+            ('Cyclopay_Tax', 'Taxa Cyclopay :', 450, 170, 310, 180)
         ]
 
+        vcmd = (self.master.register(validate_decimal), '%P')
+        
         for key, label, x_entry, y_entry, x_label, y_label in widget_params:
             if key not in self.exclude_widgets:
-                self.entries[key] = customtkinter.CTkEntry(master=self.master, width=150, height=40, border_width=2, justify='center')
+                self.entries[key] = customtkinter.CTkEntry(master=self.master, width=150, height=40, border_width=2, justify='center', validate='key', validatecommand=vcmd)
                 self.entries[key].place(x=x_entry, y=y_entry)
                 label_widget = customtkinter.CTkLabel(master=self.master, width=10, height=10, text=label, fg_color='#292929', corner_radius=0)
                 label_widget.place(x=x_label, y=y_label)
         
         # Calculate Button
         if 'Calculate_Button' not in self.exclude_widgets:
-            self.Record_Button = customtkinter.CTkButton(master=self.master, width=150, height=40, border_width=2, text='Calcular', command=self.generate_table)
-            self.Record_Button.place(x=950, y=100)
+            self.Calculate_Button = customtkinter.CTkButton(master=self.master, width=150, height=40, border_width=2, text='Calcular', command=self.generate_table)
+            self.Calculate_Button.place(x=950, y=100)
         
         # Clean Button
         if 'Clean_Button' not in self.exclude_widgets:
@@ -48,7 +59,7 @@ class CustomWidgets:
 
         # Record Button
         if 'Record_Button' not in self.exclude_widgets:
-            self.Record_Button = customtkinter.CTkButton(master=self.master, width=150, height=40, border_width=2, text='Gravar', compound='bottom', command=self.record_server)
+            self.Record_Button = customtkinter.CTkButton(master=self.master, width=150, height=40, border_width=2, text='Gravar', compound='bottom')
             self.Record_Button.place(x=950, y=170)
 
     def update_table(self):
@@ -65,7 +76,11 @@ class CustomWidgets:
             self.treeview.heading(col, text=col)
             self.treeview.column(col, width=98, stretch=tk.NO, minwidth=50, anchor='center')
         
-        self.treeview.place(x=10, y=350, width=2000, height=400)
+        self.treeview.place(x=10, y=280, width=1495, height=400)
+        scrollbarY = tk.Scrollbar(self.master, orient="vertical", command=self.treeview.yview)
+        self.treeview.configure(yscrollcommand=scrollbarY.set)
+        scrollbarY.place(x=1480, y=280, width=20, height=380)
+        
 
     def clean_table(self):
         for row in self.treeview.get_children():
@@ -73,20 +88,19 @@ class CustomWidgets:
 
         for entry in self.entries.values():
             entry.delete(0, tk.END)
-        
 
     def generate_table(self):
         Teras = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.0, 30.0, 40.0, 50.0]
 
         try:
-            Anual_USD = round(float(self.entries['Cost_Tera'].get()), 2)
-            Value_dolar = round(float(self.entries['Dolar_Price'].get()), 2)
-            Cyclopay_Tax = round(float(self.entries['Cyclopay_Tax'].get()), 2)
-            IOFF = round(float(self.entries['IOF'].get()), 2)
-            Fix_Tax_Cyclopay = round(float(self.entries['Fix_Tax_Cyclopay'].get()), 2)
-            Initial_Tax = round(float(self.entries['Initial_Tax'].get()), 2)
-            Server_Cost = round(float(self.entries['Server_Cost'].get()), 2)
-            Cost_Invoice = round(float(self.entries['Cost_Invoice'].get()), 2)
+            Anual_USD = round(float(self.entries['Cost_Tera'].get().replace(",", ".")), 2)
+            Value_dolar = round(float(self.entries['Dolar_Price'].get().replace(",", ".")), 2)
+            Cyclopay_Tax = round(float(self.entries['Cyclopay_Tax'].get().replace(",", ".")), 2)
+            IOFF = round(float(self.entries['IOF'].get().replace(",", ".")), 2)
+            Fix_Tax_Cyclopay = round(float(self.entries['Fix_Tax_Cyclopay'].get().replace(",", ".")), 2)
+            Initial_Tax = round(float(self.entries['Initial_Tax'].get().replace(",", ".")), 2)
+            Server_Cost = round(float(self.entries['Server_Cost'].get().replace(",", ".")), 2)
+            Cost_Invoice = round(float(self.entries['Cost_Invoice'].get().replace(",", ".")), 2)
             Month_USD = round((Anual_USD / 12), 2)
             Anual_Brl = round((Anual_USD * Value_dolar), 2)
             Month_Brl = round((Month_USD * Value_dolar), 2)
@@ -122,7 +136,7 @@ class CustomWidgets:
                 'Margem': 0,  # Você pode adicionar a lógica de margem aqui
                 'VENDA MENSAL (R$)': result_Month_Brl,
                 'MENSAL câmbio cartão': result_Month_Brl_CC,
-                'VALOR (Dólar)': result_Month_USD_CC
+                'VALOR (Dólar)': result_Value_dolar
             })
 
             self.update_table()
@@ -134,7 +148,7 @@ class CustomWidgets:
 # Exemplo de uso:
 app = customtkinter.CTk()
 app.title('Calculadora de Custo')
-app.geometry('1200x600')
+app.geometry('1250x600')
 
 my_tab = customtkinter.CTkTabview(app, height=800, width=800)
 my_tab.pack(side="top", fill="x", pady=10)
@@ -155,7 +169,7 @@ custom_widgets1 = CustomWidgets(frame1)
 custom_widgets1.create_table()
 
 # Instancia os widgets personalizados no frame2, excluindo alguns widgets
-custom_widgets2 = CustomWidgets(frame2, exclude_widgets=['Cyclopay_Tax', 'Cost_Invoice'])
+custom_widgets2 = CustomWidgets(frame2, exclude_widgets=['Fix_Tax_Cyclopay', 'Cost_Invoice'])
 custom_widgets2.create_table()
 
 app.mainloop()
