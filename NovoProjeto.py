@@ -70,9 +70,37 @@ class CustomWidgets:
 
     def create_table(self):
         self.data = pd.DataFrame(columns=columns)
-        self.treeview = ttk.Treeview(self.master, columns=columns, show="headings")
 
-        for col in columns:
+        # Excluindo colunas
+        excluded_columns = set()
+        if 'Fix_Tax_Cyclopay' in self.exclude_widgets:
+            excluded_columns.add('Taxa fixa Cyclopay')
+        if 'Initial_Tax' in self.exclude_widgets:
+            excluded_columns.add('Impostos')
+        if 'Cost_Tera' in self.exclude_widgets:
+            excluded_columns.add('ANUAL(U$)')
+            excluded_columns.add('MENSAL(U$)')
+            excluded_columns.add('ANUAL(R$)')
+            excluded_columns.add('MENSAL(R$)')
+        if 'Cost_Invoice' in self.exclude_widgets:
+            excluded_columns.add('Custo NF')
+        if 'Server_Cost' in self.exclude_widgets:
+            excluded_columns.add('Custo servidor')
+        if 'Dolar_Price' in self.exclude_widgets:
+            excluded_columns.add('MENSAL câmbio cartão')
+            excluded_columns.add('VALOR (Dólar)')
+        if 'Margim' in self.exclude_widgets:
+            excluded_columns.add('Margem')
+        if 'IOF' in self.exclude_widgets:
+            excluded_columns.add('IOF %')
+        if 'Cyclopay_Tax' in self.exclude_widgets:
+            excluded_columns.add('Taxa % Cyclopay')
+
+        filtered_columns = [col for col in columns if col not in excluded_columns]
+
+        self.treeview = ttk.Treeview(self.master, columns=filtered_columns, show="headings")
+
+        for col in filtered_columns:
             self.treeview.heading(col, text=col)
             self.treeview.column(col, width=98, stretch=tk.NO, minwidth=50, anchor='center')
         
@@ -80,7 +108,6 @@ class CustomWidgets:
         scrollbarY = tk.Scrollbar(self.master, orient="vertical", command=self.treeview.yview)
         self.treeview.configure(yscrollcommand=scrollbarY.set)
         scrollbarY.place(x=1480, y=280, width=20, height=380)
-        
 
     def clean_table(self):
         for row in self.treeview.get_children():
@@ -93,27 +120,29 @@ class CustomWidgets:
         Teras = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.0, 30.0, 40.0, 50.0]
 
         try:
-            Anual_USD = round(float(self.entries['Cost_Tera'].get().replace(",", ".")), 2)
-            Value_dolar = round(float(self.entries['Dolar_Price'].get().replace(",", ".")), 2)
-            Cyclopay_Tax = round(float(self.entries['Cyclopay_Tax'].get().replace(",", ".")), 2)
-            IOFF = round(float(self.entries['IOF'].get().replace(",", ".")), 2)
-            Fix_Tax_Cyclopay = round(float(self.entries['Fix_Tax_Cyclopay'].get().replace(",", ".")), 2)
-            Initial_Tax = round(float(self.entries['Initial_Tax'].get().replace(",", ".")), 2)
-            Server_Cost = round(float(self.entries['Server_Cost'].get().replace(",", ".")), 2)
-            Cost_Invoice = round(float(self.entries['Cost_Invoice'].get().replace(",", ".")), 2)
-            Month_USD = round((Anual_USD / 12), 2)
+            # Extrair valores apenas se os widgets não foram excluídos
+            Anual_USD = round(float(self.entries['Cost_Tera'].get().replace(",", ".")), 2) if 'Cost_Tera' in self.entries else 0
+            Value_dolar = round(float(self.entries['Dolar_Price'].get().replace(",", ".")), 2) if 'Dolar_Price' in self.entries else 0
+            Cyclopay_Tax = round(float(self.entries['Cyclopay_Tax'].get().replace(",", ".")), 2) if 'Cyclopay_Tax' in self.entries else 0
+            IOFF = round(float(self.entries['IOF'].get().replace(",", ".")), 2) if 'IOF' in self.entries else 0
+            Fix_Tax_Cyclopay = round(float(self.entries['Fix_Tax_Cyclopay'].get().replace(",", ".")), 2) if 'Fix_Tax_Cyclopay' in self.entries else 0
+            Initial_Tax = round(float(self.entries['Initial_Tax'].get().replace(",", ".")), 2) if 'Initial_Tax' in self.entries else 0
+            Server_Cost = round(float(self.entries['Server_Cost'].get().replace(",", ".")), 2) if 'Server_Cost' in self.entries else 0
+            Cost_Invoice = round(float(self.entries['Cost_Invoice'].get().replace(",", ".")), 2) if 'Cost_Invoice' in self.entries else 0
+
+            Month_USD = round((Anual_USD / 12.00), 2)
             Anual_Brl = round((Anual_USD * Value_dolar), 2)
             Month_Brl = round((Month_USD * Value_dolar), 2)
             Month_Brl_CC = round((Month_Brl * 1.065), 2)
             Month_USD_CC = round((Month_Brl_CC / Value_dolar), 2)
 
-            result_Anual_USD =  np.round([t * (Anual_USD * 0.85) for t in Teras])
+            result_Anual_USD = np.round([t * (Anual_USD * 0.85) for t in Teras])
             result_Value_dolar = np.round([t * Value_dolar for t in Teras])
-            result_Month_USD = np.round([t * Month_USD for t in Teras])
+            result_Month_USD = np.round([result_Anual_USD[i] / 12 for i in range(len(Teras))])
             result_Anual_Brl = np.round([t * Anual_Brl for t in Teras])
             result_Cyclopay_Tax = np.round([t * (Cyclopay_Tax * Month_Brl) for t in Teras])
             result_IOFF = np.round([t * (IOFF * Month_USD) for t in Teras])
-            result_Fix_Tax_Cyclopay = np.round([t * Fix_Tax_Cyclopay for t in Teras])
+            result_Fix_Tax_Cyclopay = np.round([Fix_Tax_Cyclopay] * len(Teras))
             result_Initial_Tax = np.round([t * (Initial_Tax * Month_Brl) for t in Teras])
             result_Server_Cost = np.round([t * Server_Cost for t in Teras])
             result_Cost_Invoice = np.round([t * Cost_Invoice for t in Teras])
@@ -121,7 +150,7 @@ class CustomWidgets:
             result_Month_Brl_CC = np.round([t * Month_Brl_CC for t in Teras])
             result_Month_USD_CC = np.round([t * Month_USD_CC for t in Teras])
 
-            self.data = pd.DataFrame({
+            data_dict = {
                 'Espaço TB': Teras,
                 'ANUAL(U$)': result_Anual_USD,
                 'MENSAL(U$)': result_Month_USD,
@@ -133,23 +162,49 @@ class CustomWidgets:
                 'Impostos': result_Initial_Tax,
                 'Custo servidor': result_Server_Cost,
                 'Custo NF': result_Cost_Invoice,
-                'Margem': 0,  # Você pode adicionar a lógica de margem aqui
+                'Margem': result_Month_Brl,
                 'VENDA MENSAL (R$)': result_Month_Brl,
                 'MENSAL câmbio cartão': result_Month_Brl_CC,
-                'VALOR (Dólar)': result_Value_dolar
-            })
+                'VALOR (Dólar)': result_Month_USD_CC,
+            }
 
+            # Excluir colunas baseadas nos widgets excluídos
+            for key in self.exclude_widgets:
+                if key == 'Fix_Tax_Cyclopay':
+                    del data_dict['Taxa fixa Cyclopay']
+                elif key == 'Initial_Tax':
+                    del data_dict['Impostos']
+                elif key == 'Cost_Tera':
+                    del data_dict['ANUAL(U$)']
+                    del data_dict['MENSAL(U$)']
+                    del data_dict['ANUAL(R$)']
+                    del data_dict['MENSAL(R$)']
+                elif key == 'Cost_Invoice':
+                    del data_dict['Custo NF']
+                elif key == 'Server_Cost':
+                    del data_dict['Custo servidor']
+                elif key == 'Dolar_Price':
+                    del data_dict['MENSAL câmbio cartão']
+                    del data_dict['VALOR (Dólar)']
+                elif key == 'Margim':
+                    del data_dict['Margem']
+                elif key == 'IOF':
+                    del data_dict['IOF %']
+                elif key == 'Cyclopay_Tax':
+                    del data_dict['Taxa % Cyclopay']
+
+            self.data = pd.DataFrame(data_dict)
             self.update_table()
 
-        except ValueError as e:
-            print(f"Erro de conversão: {e}")
-            # Você pode adicionar aqui uma mensagem de erro no aplicativo tkinter se desejar
+        except Exception as e:
+            print("Erro ao gerar a tabela:", e)
 
-# Exemplo de uso:
+# Criar a janela principal
 app = customtkinter.CTk()
 app.title('Calculadora de Custo')
-app.geometry('1250x600')
+app.geometry('1500x700')
 
+# Criar e posicionar os widgets no frame1 e frame2
 my_tab = customtkinter.CTkTabview(app, height=800, width=800)
 my_tab.pack(side="top", fill="x", pady=10)
 
@@ -169,7 +224,8 @@ custom_widgets1 = CustomWidgets(frame1)
 custom_widgets1.create_table()
 
 # Instancia os widgets personalizados no frame2, excluindo alguns widgets
-custom_widgets2 = CustomWidgets(frame2, exclude_widgets=['Fix_Tax_Cyclopay', 'Cost_Invoice'])
+custom_widgets2 = CustomWidgets(frame2, exclude_widgets=['Fix_Tax_Cyclopay','Cost_Invoice'])
 custom_widgets2.create_table()
 
+# Iniciar o loop principal do Tkinter
 app.mainloop()
