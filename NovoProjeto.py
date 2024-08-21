@@ -4,15 +4,14 @@ from tkinter import ttk
 import pandas as pd
 import numpy as np
 import requests
-import time
-import json
+import asyncio
 
 customtkinter.set_appearance_mode("System")
 customtkinter.set_default_color_theme("dark-blue")
 
 columns = ['Espaço TB', 'ANUAL(U$)', 'MENSAL(U$)', 'ANUAL(R$)', 'MENSAL(R$)', 'Taxa % Cyclopay', 'IOF %', 'Taxa fixa Cyclopay', 'Impostos', 'Custo servidor', 'Custo NF', 'Margem', 'VENDA MENSAL (R$)', 'MENSAL câmbio cartão', 'VALOR (Dólar)']
 
-def dolar_API():
+async def dolar_API():
     response = requests.get('https://backend.selfspaces.com.br/cotacao-dia')
     data = response.json()
     dolar = data[0].get('valor_final')
@@ -56,7 +55,7 @@ class CustomWidgets:
                 label_widget = customtkinter.CTkLabel(master=self.master, width=10, height=10, text=label, fg_color='#292929', corner_radius=0)
                 label_widget.place(x=x_label, y=y_label)
                 if key == 'Dolar_Price':
-                    self.entries[key].insert(0, dolar_API())
+                    self.entries[key].insert(0, str(dolar_API()))
         
         # Calculate Button
         if 'Calculate_Button' not in self.exclude_widgets:
@@ -240,3 +239,4 @@ custom_widgets2.create_table()
 
 # Iniciar o loop principal do Tkinter
 app.mainloop()
+asyncio.run(dolar_API())
