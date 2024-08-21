@@ -3,11 +3,18 @@ import tkinter as tk
 from tkinter import ttk
 import pandas as pd
 import numpy as np
+import requests
 
 customtkinter.set_appearance_mode("System")
 customtkinter.set_default_color_theme("dark-blue")
 
 columns = ['Espaço TB', 'ANUAL(U$)', 'MENSAL(U$)', 'ANUAL(R$)', 'MENSAL(R$)', 'Taxa % Cyclopay', 'IOF %', 'Taxa fixa Cyclopay', 'Impostos', 'Custo servidor', 'Custo NF', 'Margem', 'VENDA MENSAL (R$)', 'MENSAL câmbio cartão', 'VALOR (Dólar)']
+
+def dolar_API():
+    response = requests.get('https://backend.selfspaces.com.br/cotacao-dia')
+    data = response.json()
+    dolar = data[0].get('valor_final')
+    return dolar
 
 def validate_decimal(P):
     if P in ("", ","):
@@ -46,6 +53,8 @@ class CustomWidgets:
                 self.entries[key].place(x=x_entry, y=y_entry)
                 label_widget = customtkinter.CTkLabel(master=self.master, width=10, height=10, text=label, fg_color='#292929', corner_radius=0)
                 label_widget.place(x=x_label, y=y_label)
+                if key == 'Dolar_Price':
+                    self.entries[key].insert(0, dolar_API())
         
         # Calculate Button
         if 'Calculate_Button' not in self.exclude_widgets:
@@ -136,19 +145,19 @@ class CustomWidgets:
             Month_Brl_CC = round((Month_Brl * 1.065), 2)
             Month_USD_CC = round((Month_Brl_CC / Value_dolar), 2)
 
-            result_Anual_USD = np.round([t * (Anual_USD * 0.85) for t in Teras])
+            result_Anual_USD = np.round([t * (Anual_USD * 0.85) for t in Teras], 2)
             result_Value_dolar = np.round([t * Value_dolar for t in Teras])
-            result_Month_USD = np.round([result_Anual_USD[i] / 12 for i in range(len(Teras))])
-            result_Anual_Brl = np.round([t * Anual_Brl for t in Teras])
-            result_Cyclopay_Tax = np.round([t * (Cyclopay_Tax * Month_Brl) for t in Teras])
-            result_IOFF = np.round([t * (IOFF * Month_USD) for t in Teras])
+            result_Month_USD = np.round([result_Anual_USD[i] / 12 for i in range(len(Teras))],2)
+            result_Anual_Brl = np.round([t * Anual_Brl for t in Teras],2)
+            result_Cyclopay_Tax = np.round([t * (Cyclopay_Tax * Month_Brl) for t in Teras],2)
+            result_IOFF = np.round([t * (IOFF * Month_USD) for t in Teras],2)
             result_Fix_Tax_Cyclopay = np.round([Fix_Tax_Cyclopay] * len(Teras))
-            result_Initial_Tax = np.round([t * (Initial_Tax * Month_Brl) for t in Teras])
-            result_Server_Cost = np.round([t * Server_Cost for t in Teras])
-            result_Cost_Invoice = np.round([t * Cost_Invoice for t in Teras])
-            result_Month_Brl = np.round([t * Month_Brl for t in Teras])
-            result_Month_Brl_CC = np.round([t * Month_Brl_CC for t in Teras])
-            result_Month_USD_CC = np.round([t * Month_USD_CC for t in Teras])
+            result_Initial_Tax = np.round([t * (Initial_Tax * Month_Brl) for t in Teras],2)
+            result_Server_Cost = np.round([t * Server_Cost for t in Teras],2)
+            result_Cost_Invoice = np.round([Cost_Invoice] * len(Teras))
+            result_Month_Brl = np.round([t * Month_Brl for t in Teras],2)
+            result_Month_Brl_CC = np.round([t * Month_Brl_CC for t in Teras],2)
+            result_Month_USD_CC = np.round([t * Month_USD_CC for t in Teras],2)
 
             data_dict = {
                 'Espaço TB': Teras,
