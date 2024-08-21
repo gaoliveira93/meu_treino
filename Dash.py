@@ -1,9 +1,16 @@
+import customtkinter
+import tkinter as tk
+from tkinter import ttk
+import pandas as pd
+import numpy as np
 import requests
+import json
 
-def buscar_dolar():
+def dolar_API():
     response = requests.get('https://backend.selfspaces.com.br/cotacao-dia')
-    dados = response.json()
-    valor_dolar = dados[0].get('valor_final')
-    print(valor_dolar)
+    data = response.json()
+    dolar = data[0].get('valor_final')
+    return str(dolar)
 
-buscar_dolar()
+dolar_API()
+

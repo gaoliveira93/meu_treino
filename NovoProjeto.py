@@ -4,6 +4,8 @@ from tkinter import ttk
 import pandas as pd
 import numpy as np
 import requests
+import time
+import json
 
 customtkinter.set_appearance_mode("System")
 customtkinter.set_default_color_theme("dark-blue")
@@ -14,7 +16,7 @@ def dolar_API():
     response = requests.get('https://backend.selfspaces.com.br/cotacao-dia')
     data = response.json()
     dolar = data[0].get('valor_final')
-    return dolar
+    return str(dolar)
 
 def validate_decimal(P):
     if P in ("", ","):
