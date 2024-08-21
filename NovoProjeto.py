@@ -16,7 +16,7 @@ def dolar_API():
     response = requests.get('https://backend.selfspaces.com.br/cotacao-dia')
     data = response.json()
     dolar = data[0].get('valor_final')
-    return str(dolar)
+    return dolar
 
 def validate_decimal(P):
     if P in ("", ","):
