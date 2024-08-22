@@ -4,18 +4,20 @@ from tkinter import ttk
 import pandas as pd
 import numpy as np
 import requests
-import json
+import asyncio
+import aiohttp
 
 customtkinter.set_appearance_mode("System")
 customtkinter.set_default_color_theme("dark-blue")
 
 columns = ['Espaço TB', 'ANUAL(U$)', 'MENSAL(U$)', 'ANUAL(R$)', 'MENSAL(R$)', 'Taxa % Cyclopay', 'IOF %', 'Taxa fixa Cyclopay', 'Impostos', 'Custo servidor', 'Custo NF', 'Margem', 'VENDA MENSAL (R$)', 'MENSAL câmbio cartão', 'VALOR (Dólar)']
 
+
 def dolar_API():
     response = requests.get('https://backend.selfspaces.com.br/cotacao-dia')
     data = response.json()
     dolar = data[0].get('valor_final')
-    return dolar
+    return (dolar)
 
 def validate_decimal(P):
     if P in ("", ","):
@@ -55,7 +57,8 @@ class CustomWidgets:
                 label_widget = customtkinter.CTkLabel(master=self.master, width=10, height=10, text=label, fg_color='#292929', corner_radius=0)
                 label_widget.place(x=x_label, y=y_label)
                 if key == 'Dolar_Price':
-                    self.entries[key].insert(0, dolar_API())
+                    dolar_value = dolar_API()
+                    self.entries[key].insert(0, str(dolar_value))
         
         # Calculate Button
         if 'Calculate_Button' not in self.exclude_widgets:
