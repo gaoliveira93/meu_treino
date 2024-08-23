@@ -67,7 +67,7 @@ class CustomWidgets:
                 label_widget.place(x=x_label, y=y_label)
                 if key == 'Dolar_Price':
                     dolar_value = dolar_API()
-                    self.entries[key].insert(0, str(dolar_value))
+                    self.entries[key].insert(0, float(dolar_value))
         
         # Calculate Button
         if 'Calculate_Button' not in self.exclude_widgets:
