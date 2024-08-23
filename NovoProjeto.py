@@ -4,22 +4,14 @@ from tkinter import ttk
 import pandas as pd
 import numpy as np
 import requests
-import asyncio
-import aiohttp
-import time
+from API_DOLAR import dolar_API
+
 
 customtkinter.set_appearance_mode("System")
 customtkinter.set_default_color_theme("dark-blue")
 
 columns = ['Espaço TB', 'ANUAL(U$)', 'MENSAL(U$)', 'ANUAL(R$)', 'MENSAL(R$)', 'Taxa % Cyclopay', 'IOF %', 'Taxa fixa Cyclopay', 'Impostos', 'Custo servidor', 'Custo NF', 'Margem', 'VENDA MENSAL (R$)', 'MENSAL câmbio cartão', 'VALOR (Dólar)']
 
-
-def dolar_API():
-    response = requests.get('https://backend.selfspaces.com.br/cotacao-dia')
-    data = response.json()
-    dolar = data[0].get('valor_final') if data else None
-    print(dolar)
-    return dolar
 
 def validate_decimal(P):
     if P in ("", ","):
