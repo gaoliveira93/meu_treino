@@ -16,9 +16,9 @@ columns = ['Espaço TB', 'ANUAL(U$)', 'MENSAL(U$)', 'ANUAL(R$)', 'MENSAL(R$)', '
 
 def dolar_API():
     response = requests.get('https://backend.selfspaces.com.br/cotacao-dia')
-            data = response.json()
-            dolar = data[0].get('valor_final') if data else None
-            return dolar
+    data = response.json()
+    dolar = data[0].get('valor_final') if data else None
+    return dolar
 
 def validate_decimal(P):
     if P in ("", ","):
