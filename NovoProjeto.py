@@ -6,6 +6,7 @@ import numpy as np
 import requests
 import asyncio
 import aiohttp
+import time
 
 customtkinter.set_appearance_mode("System")
 customtkinter.set_default_color_theme("dark-blue")
@@ -15,7 +16,11 @@ columns = ['Espaço TB', 'ANUAL(U$)', 'MENSAL(U$)', 'ANUAL(R$)', 'MENSAL(R$)', '
 
 def dolar_API():
     response = requests.get('https://backend.selfspaces.com.br/cotacao-dia')
-    data = response.json()
+    time.sleep(1)
+    if response.status_code == 200:
+        data = response.json()
+    else:
+        print("Error from server: " + str(response.content))
     dolar = data[0].get('valor_final')
     return (dolar)
 
