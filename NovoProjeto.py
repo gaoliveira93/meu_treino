@@ -16,13 +16,17 @@ columns = ['Espaço TB', 'ANUAL(U$)', 'MENSAL(U$)', 'ANUAL(R$)', 'MENSAL(R$)', '
 
 def dolar_API():
     response = requests.get('https://backend.selfspaces.com.br/cotacao-dia')
-    time.sleep(1)
     if response.status_code == 200:
-        data = response.json()
+        try:
+            data = response.json()
+            dolar = data[0].get('valor_final') if data else None
+            return dolar
+        except ValueError:
+            print("Response is not in JSON format")
+            return "Error"
     else:
-        print("Error from server: " + str(response.content))
-    dolar = data[0].get('valor_final')
-    return (dolar)
+        print(f"Request failed with status code: {response.status_code}")
+        return "Error"
 
 def validate_decimal(P):
     if P in ("", ","):
