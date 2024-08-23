@@ -16,17 +16,9 @@ columns = ['Espaço TB', 'ANUAL(U$)', 'MENSAL(U$)', 'ANUAL(R$)', 'MENSAL(R$)', '
 
 def dolar_API():
     response = requests.get('https://backend.selfspaces.com.br/cotacao-dia')
-    if response.status_code == 200:
-        try:
             data = response.json()
             dolar = data[0].get('valor_final') if data else None
             return dolar
-        except ValueError:
-            print("Response is not in JSON format")
-            return "Error"
-    else:
-        print(f"Request failed with status code: {response.status_code}")
-        return "Error"
 
 def validate_decimal(P):
     if P in ("", ","):
@@ -67,7 +59,7 @@ class CustomWidgets:
                 label_widget.place(x=x_label, y=y_label)
                 if key == 'Dolar_Price':
                     dolar_value = dolar_API()
-                    self.entries[key].insert(0, float(dolar_value))
+                    self.entries[key].insert(0, (dolar_value))
         
         # Calculate Button
         if 'Calculate_Button' not in self.exclude_widgets:
