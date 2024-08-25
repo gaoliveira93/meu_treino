@@ -23,8 +23,9 @@ def validate_decimal(P):
         return False
 
 class CustomWidgets:
-    def __init__(self, master, exclude_widgets=[]):
+    def __init__(self, master, context, exclude_widgets=[]):
         self.master = master
+        self.context = context
         self.exclude_widgets = exclude_widgets
         self.entries = {}
         self.create_widgets()
@@ -66,7 +67,14 @@ class CustomWidgets:
 
         # Record Button
         if 'Record_Button' not in self.exclude_widgets:
-            self.Record_Button = customtkinter.CTkButton(master=self.master, width=150, height=40, border_width=2, text='Gravar', compound='bottom')
+            if self.context == 'frame1':
+                button_command = self.clean_table
+            elif self.context == 'frame2':
+                button_command = self.clean_table 
+            else:
+                button_command = None
+
+            self.Record_Button = customtkinter.CTkButton(master=self.master, width=150, height=40, border_width=2,text='Gravar', compound='bottom', command=button_command)
             self.Record_Button.place(x=950, y=170)
 
     def update_table(self):
@@ -227,11 +235,11 @@ frame2 = customtkinter.CTkFrame(master=tab2, width=1500, height=1200)
 frame2.pack(fill='both', expand=True)
 
 # Instancia os widgets personalizados no frame1
-custom_widgets1 = CustomWidgets(frame1)
+custom_widgets1 = CustomWidgets(master= frame1, context = 'frame1')
 custom_widgets1.create_table()
 
 # Instancia os widgets personalizados no frame2, excluindo alguns widgets
-custom_widgets2 = CustomWidgets(frame2, exclude_widgets=['Fix_Tax_Cyclopay','Cost_Invoice'])
+custom_widgets2 = CustomWidgets(master=frame2, context = 'frame2', exclude_widgets=['Fix_Tax_Cyclopay','Cost_Invoice'])
 custom_widgets2.create_table()
 
 # Iniciar o loop principal do Tkinter
