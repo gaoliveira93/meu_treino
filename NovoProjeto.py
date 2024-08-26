@@ -3,8 +3,20 @@ import tkinter as tk
 from tkinter import ttk
 import pandas as pd
 import numpy as np
-import requests
 from API_DOLAR import dolar_API
+import mysql.connector
+
+
+
+mydb = mysql.connector.connect(host= 'mysql-selfdrive-u4639.vm.elestio.app',
+                               user= 'root',
+                               password= 'cBrblyeK-LmAr-rmZ34Me4',
+                               port= 24306,
+                               database= 'backend_db'
+    
+)
+
+mydb.is_connected()
 
 
 customtkinter.set_appearance_mode("System")
@@ -117,7 +129,12 @@ class CustomWidgets:
 
         for col in filtered_columns:
             self.treeview.heading(col, text=col)
-            self.treeview.column(col, width=98, stretch=tk.NO, minwidth=50, anchor='center')
+            if self.context == 'frame1':
+                self.treeview.column(col, width=98, stretch=tk.NO, minwidth=50, anchor='center')
+            elif self.context == 'frame2':
+                self.treeview.column(col, width=113, stretch=tk.NO, minwidth=50, anchor='center')
+            else:
+                'None'
         
         self.treeview.place(x=10, y=280, width=1495, height=400)
         scrollbarY = tk.Scrollbar(self.master, orient="vertical", command=self.treeview.yview)
@@ -130,6 +147,40 @@ class CustomWidgets:
 
         for entry in self.entries.values():
             entry.delete(0, tk.END)
+
+    def record_data(self):
+        if self.context == 'frame1':
+            assinatura = 0
+        elif self.context == 'frame2':
+            assinatura = 1
+        else:
+            print('Erro')
+        sql_query = """"
+        UPDATE calculos 
+        SET (id = %s, custo_servidor = %s, impostos= %s , custo_terabyte= %s, cambio_dolar= %s, iof, margem_lucro= %s, taxa_operadora= %s, taxa_fixa_operadora= %s, assinatura= %s)
+        """
+
+        update_values = (
+        first_row['custo_servidor'], 
+        first_row['impostos'], 
+        first_row['custo_terabyte'], 
+        first_row['cambio_dolar'], 
+        first_row['iof'], 
+        first_row['margem_lucro'], 
+        first_row['taxa_operadora'], 
+        first_row['taxa_fixa_operadora'], 
+        assinatura,
+        )
+        
+        first_row = {key: value[0] for key, value in self.data.items()}
+
+        cursor = mydb.cursor()
+        cursor.execute(sql_query, update_values)
+        
+        mydb.commit()
+        cursor.close()
+
+
 
     def generate_table(self):
         Teras = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.0, 30.0, 40.0, 50.0]
@@ -171,9 +222,9 @@ class CustomWidgets:
                 'MENSAL(U$)': result_Month_USD,
                 'ANUAL(R$)': result_Anual_Brl,
                 'MENSAL(R$)': result_Month_Brl,
-                'Taxa % Cyclopay': result_Cyclopay_Tax,
+                'Taxa % Operadora': result_Cyclopay_Tax,
                 'IOF %': result_IOFF,
-                'Taxa fixa Cyclopay': result_Fix_Tax_Cyclopay,
+                'Taxa fixa Operadora': result_Fix_Tax_Cyclopay,
                 'Impostos': result_Initial_Tax,
                 'Custo servidor': result_Server_Cost,
                 'Custo NF': result_Cost_Invoice,
@@ -214,10 +265,11 @@ class CustomWidgets:
         except Exception as e:
             print("Erro ao gerar a tabela:", e)
 
+
 # Criar a janela principal
 app = customtkinter.CTk()
 app.title('Calculadora de Custo')
-app.geometry('1500x700')
+app.geometry('1200x600')
 
 # Criar e posicionar os widgets no frame1 e frame2
 my_tab = customtkinter.CTkTabview(app, height=800, width=800)
@@ -244,3 +296,4 @@ custom_widgets2.create_table()
 
 # Iniciar o loop principal do Tkinter
 app.mainloop()
+mydb.close()
