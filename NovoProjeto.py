@@ -8,10 +8,10 @@ import mysql.connector
 
 
 
-mydb = mysql.connector.connect(host= 'mysql-selfdrive-u4639.vm.elestio.app',
-                               user= 'root',
-                               password= 'cBrblyeK-LmAr-rmZ34Me4',
-                               port= 24306,
+mydb = mysql.connector.connect(host= '216.238.104.158',
+                               user= 'backend_db_usr',
+                               password= 'LFHOp5KyOA5aXOLw',
+                               port= 3306,
                                database= 'backend_db'
     
 )
@@ -22,7 +22,7 @@ mydb.is_connected()
 customtkinter.set_appearance_mode("System")
 customtkinter.set_default_color_theme("dark-blue")
 
-columns = ['Espaço TB', 'ANUAL(U$)', 'MENSAL(U$)', 'ANUAL(R$)', 'MENSAL(R$)', 'Taxa % Cyclopay', 'IOF %', 'Taxa fixa Cyclopay', 'Impostos', 'Custo servidor', 'Custo NF', 'Margem', 'VENDA MENSAL (R$)', 'MENSAL câmbio cartão', 'VALOR (Dólar)']
+columns = ['Espaço TB', 'ANUAL(U$)', 'MENSAL(U$)', 'ANUAL(R$)', 'MENSAL(R$)', 'Taxa % Operadora', 'IOF %', 'Taxa fixa Operadora', 'Impostos', 'Custo servidor', 'Custo NF', 'Margem', 'VENDA MENSAL (R$)', 'MENSAL câmbio cartão', 'VALOR (Dólar)']
 
 
 def validate_decimal(P):
@@ -44,7 +44,7 @@ class CustomWidgets:
         
     def create_widgets(self):
         widget_params = [
-            ('Fix_Tax_Cyclopay', 'Taxa Fixa Cyclopay :', 750, 170, 620, 180),
+            ('Fix_Tax_Operator', 'Taxa Fixa Operadora :', 750, 170, 620, 180),
             ('Initial_Tax', 'Imposto :', 450, 30, 310, 40),
             ('Cost_Tera', 'Custo por Terabyte :', 750, 30, 620, 40),
             ('Cost_Invoice', 'Custo Nota Fiscal :', 750, 100, 620, 110),
@@ -52,7 +52,7 @@ class CustomWidgets:
             ('Dolar_Price', 'Câmbio do dólar :', 130, 100, 15, 110),
             ('Margim', 'Margem de Lucro :', 130, 170, 15, 180),
             ('IOF', 'IOF :', 450, 100, 310, 110),
-            ('Cyclopay_Tax', 'Taxa Cyclopay :', 450, 170, 310, 180)
+            ('Operator_Tax', 'Taxa Operadora :', 450, 170, 310, 180)
         ]
 
         vcmd = (self.master.register(validate_decimal), '%P')
@@ -79,14 +79,7 @@ class CustomWidgets:
 
         # Record Button
         if 'Record_Button' not in self.exclude_widgets:
-            if self.context == 'frame1':
-                button_command = self.clean_table
-            elif self.context == 'frame2':
-                button_command = self.clean_table 
-            else:
-                button_command = None
-
-            self.Record_Button = customtkinter.CTkButton(master=self.master, width=150, height=40, border_width=2,text='Gravar', compound='bottom', command=button_command)
+            self.Record_Button = customtkinter.CTkButton(master=self.master, width=150, height=40, border_width=2,text='Gravar', compound='bottom', command=self.record_data)
             self.Record_Button.place(x=950, y=170)
 
     def update_table(self):
@@ -100,8 +93,8 @@ class CustomWidgets:
 
         # Excluindo colunas
         excluded_columns = set()
-        if 'Fix_Tax_Cyclopay' in self.exclude_widgets:
-            excluded_columns.add('Taxa fixa Cyclopay')
+        if 'Fix_Tax_Operator' in self.exclude_widgets:
+            excluded_columns.add('Taxa fixa Operadora')
         if 'Initial_Tax' in self.exclude_widgets:
             excluded_columns.add('Impostos')
         if 'Cost_Tera' in self.exclude_widgets:
@@ -120,8 +113,8 @@ class CustomWidgets:
             excluded_columns.add('Margem')
         if 'IOF' in self.exclude_widgets:
             excluded_columns.add('IOF %')
-        if 'Cyclopay_Tax' in self.exclude_widgets:
-            excluded_columns.add('Taxa % Cyclopay')
+        if 'Operator_Tax' in self.exclude_widgets:
+            excluded_columns.add('Taxa % Operadora')
 
         filtered_columns = [col for col in columns if col not in excluded_columns]
 
@@ -155,31 +148,33 @@ class CustomWidgets:
             assinatura = 1
         else:
             print('Erro')
-        sql_query = """"
-        UPDATE calculos 
-        SET (id = %s, custo_servidor = %s, impostos= %s , custo_terabyte= %s, cambio_dolar= %s, iof, margem_lucro= %s, taxa_operadora= %s, taxa_fixa_operadora= %s, assinatura= %s)
-        """
-
-        update_values = (
-        first_row['custo_servidor'], 
-        first_row['impostos'], 
-        first_row['custo_terabyte'], 
-        first_row['cambio_dolar'], 
-        first_row['iof'], 
-        first_row['margem_lucro'], 
-        first_row['taxa_operadora'], 
-        first_row['taxa_fixa_operadora'], 
-        assinatura,
-        )
+        sql_query = """
+    UPDATE calculos 
+    SET custo_servidor = %s, impostos = %s, custo_terabyte = %s, cambio_dolar = %s, 
+        iof = %s, margem_lucro = %s, taxa_operadora = %s, 
+        taxa_fixa_operadora = %s
+    WHERE assinatura = %s
+"""
         
         first_row = {key: value[0] for key, value in self.data.items()}
+
+        update_values = (
+        first_row.get('Custo servidor'),
+        first_row.get('Impostos'),
+        first_row.get('MENSAL(R$)'),
+        self.entries['Dolar_Price'].get(),
+        first_row.get('IOF %'),
+        first_row.get('Cost_Invoice'),
+        first_row.get('Margem'),
+        first_row.get('Taxa % Operadora'),
+        first_row.get('Taxa fixa Operadora', )
+        )
 
         cursor = mydb.cursor()
         cursor.execute(sql_query, update_values)
         
         mydb.commit()
         cursor.close()
-
 
 
     def generate_table(self):
@@ -189,9 +184,9 @@ class CustomWidgets:
             # Extrair valores apenas se os widgets não foram excluídos
             Anual_USD = round(float(self.entries['Cost_Tera'].get().replace(",", ".")), 2) if 'Cost_Tera' in self.entries else 0
             Value_dolar = round(float(self.entries['Dolar_Price'].get().replace(",", ".")), 2) if 'Dolar_Price' in self.entries else 0
-            Cyclopay_Tax = round(float(self.entries['Cyclopay_Tax'].get().replace(",", ".")), 2) if 'Cyclopay_Tax' in self.entries else 0
+            Operator_Tax = round(float(self.entries['Operator_Tax'].get().replace(",", ".")), 2) if 'Operator_Tax' in self.entries else 0
             IOFF = round(float(self.entries['IOF'].get().replace(",", ".")), 2) if 'IOF' in self.entries else 0
-            Fix_Tax_Cyclopay = round(float(self.entries['Fix_Tax_Cyclopay'].get().replace(",", ".")), 2) if 'Fix_Tax_Cyclopay' in self.entries else 0
+            Fix_Tax_Operator = round(float(self.entries['Fix_Tax_Operator'].get().replace(",", ".")), 2) if 'Fix_Tax_Operator' in self.entries else 0
             Initial_Tax = round(float(self.entries['Initial_Tax'].get().replace(",", ".")), 2) if 'Initial_Tax' in self.entries else 0
             Server_Cost = round(float(self.entries['Server_Cost'].get().replace(",", ".")), 2) if 'Server_Cost' in self.entries else 0
             Cost_Invoice = round(float(self.entries['Cost_Invoice'].get().replace(",", ".")), 2) if 'Cost_Invoice' in self.entries else 0
@@ -203,15 +198,15 @@ class CustomWidgets:
             Month_USD_CC = round((Month_Brl_CC / Value_dolar), 2)
 
             result_Anual_USD = np.round([t * (Anual_USD * 0.85) for t in Teras], 2)
-            result_Value_dolar = np.round([t * Value_dolar for t in Teras])
+            result_Value_dolar = np.round([t * Value_dolar for t in Teras],2)
             result_Month_USD = np.round([result_Anual_USD[i] / 12 for i in range(len(Teras))],2)
             result_Anual_Brl = np.round([t * Anual_Brl for t in Teras],2)
-            result_Cyclopay_Tax = np.round([t * (Cyclopay_Tax * Month_Brl) for t in Teras],2)
+            result_Operator_Tax = np.round([t * (Operator_Tax * Month_Brl) for t in Teras],2)
             result_IOFF = np.round([t * (IOFF * Month_USD) for t in Teras],2)
-            result_Fix_Tax_Cyclopay = np.round([Fix_Tax_Cyclopay] * len(Teras))
+            result_Fix_Tax_Operator = np.round([Fix_Tax_Operator] * len(Teras))
             result_Initial_Tax = np.round([t * (Initial_Tax * Month_Brl) for t in Teras],2)
             result_Server_Cost = np.round([t * Server_Cost for t in Teras],2)
-            result_Cost_Invoice = np.round([Cost_Invoice] * len(Teras))
+            result_Cost_Invoice = np.round([Cost_Invoice] * len(Teras),2)
             result_Month_Brl = np.round([t * Month_Brl for t in Teras],2)
             result_Month_Brl_CC = np.round([t * Month_Brl_CC for t in Teras],2)
             result_Month_USD_CC = np.round([t * Month_USD_CC for t in Teras],2)
@@ -222,9 +217,9 @@ class CustomWidgets:
                 'MENSAL(U$)': result_Month_USD,
                 'ANUAL(R$)': result_Anual_Brl,
                 'MENSAL(R$)': result_Month_Brl,
-                'Taxa % Operadora': result_Cyclopay_Tax,
+                'Taxa % Operadora': result_Operator_Tax,
                 'IOF %': result_IOFF,
-                'Taxa fixa Operadora': result_Fix_Tax_Cyclopay,
+                'Taxa fixa Operadora': result_Fix_Tax_Operator,
                 'Impostos': result_Initial_Tax,
                 'Custo servidor': result_Server_Cost,
                 'Custo NF': result_Cost_Invoice,
@@ -236,8 +231,8 @@ class CustomWidgets:
 
             # Excluir colunas baseadas nos widgets excluídos
             for key in self.exclude_widgets:
-                if key == 'Fix_Tax_Cyclopay':
-                    del data_dict['Taxa fixa Cyclopay']
+                if key == 'Fix_Tax_Operator':
+                    del data_dict['Taxa fixa Operadora']
                 elif key == 'Initial_Tax':
                     del data_dict['Impostos']
                 elif key == 'Cost_Tera':
@@ -256,8 +251,8 @@ class CustomWidgets:
                     del data_dict['Margem']
                 elif key == 'IOF':
                     del data_dict['IOF %']
-                elif key == 'Cyclopay_Tax':
-                    del data_dict['Taxa % Cyclopay']
+                elif key == 'Operator_Tax':
+                    del data_dict['Taxa % Operadora']
 
             self.data = pd.DataFrame(data_dict)
             self.update_table()
@@ -291,7 +286,7 @@ custom_widgets1 = CustomWidgets(master= frame1, context = 'frame1')
 custom_widgets1.create_table()
 
 # Instancia os widgets personalizados no frame2, excluindo alguns widgets
-custom_widgets2 = CustomWidgets(master=frame2, context = 'frame2', exclude_widgets=['Fix_Tax_Cyclopay','Cost_Invoice'])
+custom_widgets2 = CustomWidgets(master= frame2, context = 'frame2', exclude_widgets=['Fix_Tax_Operator','Cost_Invoice'])
 custom_widgets2.create_table()
 
 # Iniciar o loop principal do Tkinter
