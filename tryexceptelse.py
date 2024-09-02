@@ -16,17 +16,13 @@ pyautogui.click(x, y)
 pyautogui.write('gmail.com')
 pyautogui.press('Enter')
 while True:
-    try:
-        location = pyautogui.locateOnScreen('Barra_Email.png')
-        if location is not None:
-            x, y = location
-            pyautogui.click(x, y)
-            break  # Exit loop once the image is found and clicked
-        else:
-            print('Image not found, trying again...')
-            time.sleep(1)  # Wait before retrying to reduce resource usage
-    except pyautogui.ImageNotFoundException:
-        print('Image not found exception raised, trying again...')
+    location = pyautogui.locateCenterOnScreen('Barra_Email.png', confidence=0.8)
+    if location is not None:
+        x, y = location
+        pyautogui.click(x,y)
+        break
+    else:
+        print('Imagem não encontrada')
         time.sleep(1)
 
 x, y = pyautogui.locateCenterOnScreen('Menu.png', confidence=0.7)
