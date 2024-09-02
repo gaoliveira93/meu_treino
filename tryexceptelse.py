@@ -15,10 +15,12 @@ x, y = pyautogui.locateCenterOnScreen('Brave.png', confidence=0.7)
 pyautogui.click(x, y)
 pyautogui.write('gmail.com')
 pyautogui.press('Enter')
+
 while True:
     try:
-        pyautogui.locateCenterOnScreen('Barra_Email.png')
-        break
+        barra_email =pyautogui.locateCenterOnScreen('Barra_Email.png')
+        if barra_email:
+            break
     except:
         time.sleep(0.5)
 
