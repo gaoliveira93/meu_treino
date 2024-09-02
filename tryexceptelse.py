@@ -18,7 +18,7 @@ pyautogui.press('Enter')
 
 while True:
     try:
-        barra_email =pyautogui.locateCenterOnScreen('Barra_Email.png')
+        barra_email =pyautogui.locateCenterOnScreen('Barra_Email.png', confidence=0.7)
         if barra_email:
             break
     except:
