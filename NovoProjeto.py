@@ -89,8 +89,7 @@ class CustomWidgets:
             self.treeview.insert('', 'end', values=row.tolist())
 
     def create_table(self):
-        self.data = pd.DataFrame(columns=columns)
-
+        
         # Excluindo colunas
         excluded_columns = set()
         if 'Fix_Tax_Operator' in self.exclude_widgets:
@@ -151,7 +150,7 @@ class CustomWidgets:
         sql_query = """
     UPDATE calculos 
     SET custo_servidor = %s, impostos = %s, custo_terabyte = %s, cambio_dolar = %s, 
-        iof = %s, margem_lucro = %s, taxa_operadora = %s, 
+        iof = %s, custo_nota_fiscal = %s, margem_lucro = %s, taxa_operadora = %s, 
         taxa_fixa_operadora = %s
     WHERE assinatura = %s
 """
@@ -164,10 +163,11 @@ class CustomWidgets:
         first_row.get('MENSAL(R$)'),
         self.entries['Dolar_Price'].get(),
         first_row.get('IOF %'),
-        first_row.get('Cost_Invoice'),
+        first_row.get('Custo NF'),
         first_row.get('Margem'),
         first_row.get('Taxa % Operadora'),
-        first_row.get('Taxa fixa Operadora', )
+        first_row.get('Taxa fixa Operadora', ),
+        assinatura
         )
 
         cursor = mydb.cursor()
