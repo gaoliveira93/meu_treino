@@ -1,11 +1,14 @@
 import pyautogui
 import time
+import pandas as pd
 
 #pythonautogui.write()
 #pythonautogui.click()
 #pythonautogui.LocateOnScreen()
 #pythonautogui.hotkey()
 ##pythonautogui.press()
+
+data = pd.read_excel('Teste_Email.xlsx')
 
 pyautogui.PAUSE = 1
 
@@ -24,7 +27,15 @@ while True:
     except:
         time.sleep(0.5)
 
-x, y = pyautogui.locateCenterOnScreen('Menu.png', confidence=0.7)
+x, y = pyautogui.locateCenterOnScreen('Escrever.png', confidence=0.7)
 pyautogui.click(x, y)
-x, y = pyautogui.locateCenterOnScreen('Contatos.png', confidence=0.7)
-pyautogui.click(x, y)
+for index, row, mensage in data.iterrows:
+
+
+
+pyautogui.press('Tab')
+
+pyautogui.press('Tab')
+
+pyautogui.press('Tab')
+pyautogui.press('Enter')
