@@ -29,13 +29,26 @@ while True:
 
 x, y = pyautogui.locateCenterOnScreen('Escrever.png', confidence=0.7)
 pyautogui.click(x, y)
-for i, Email, Mensage in data.iterrows:
+for i, Email in data.iterrows():
+    time.sleep(0.5)
     pyautogui.write(data['Email'][i])
+    time.sleep(0.5)
     pyautogui.press('Tab')
-    pyautogui.write(data['Assunto'][i])
     pyautogui.press('Tab')
+    time.sleep(0.5)
+    pyautogui.write(str(data['Assunto'][i]))
+    time.sleep(0.5)
+    pyautogui.press('Tab')
+    time.sleep(0.5)
     pyautogui.write(data['Mensagem'][i])
+    time.sleep(0.5)
     pyautogui.press('Tab')
+    time.sleep(0.5)
     pyautogui.press('Enter')
+    x, y = pyautogui.locateCenterOnScreen('Escrever.png', confidence=0.7)
+    pyautogui.click(x, y)   
 
 print('Emails enviados')
+
+
+with open('keys.log')

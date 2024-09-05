@@ -1,6 +1,5 @@
-import pandas as pd
-import pyautogui
+from selenium import webdriver
+from selenium import Service
+from webdriver_manager.chrome import ChromeDriverManager
 
-data = pd.read_excel('Teste_Email.xlsx')
-
-pyautogui.write(data['Assunto'][1])
+driver = webdriver.Chrome(ChromeDriverManager().install())
