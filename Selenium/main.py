@@ -2,5 +2,10 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 
-driver = webdriver.Chrome(executable_path=r'./chromedriver.exe')
+driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
 driver.get('https://forum.onipotentes.club/')
+
+input("Press Enter to close the browser...")
+
+
+driver.quit()

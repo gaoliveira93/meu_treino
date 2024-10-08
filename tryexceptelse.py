@@ -1,54 +1,27 @@
-import pyautogui
-import time
+from flask import Flask, jsonify, make_response
 import pandas as pd
-
-#pythonautogui.write()
-#pythonautogui.click()
-#pythonautogui.LocateOnScreen()
-#pythonautogui.hotkey()
-##pythonautogui.press()
-
-data = pd.read_excel('Teste_Email.xlsx')
-
-pyautogui.PAUSE = 1
-
-pyautogui.hotkey('win')
-pyautogui.write('brave')
-x, y = pyautogui.locateCenterOnScreen('Brave.png', confidence=0.7)
-pyautogui.click(x, y)
-pyautogui.write('gmail.com')
-pyautogui.press('Enter')
-
-while True:
-    try:
-        barra_email =pyautogui.locateCenterOnScreen('Barra_Email.png', confidence=0.7)
-        if barra_email:
-            break
-    except:
-        time.sleep(0.5)
-
-x, y = pyautogui.locateCenterOnScreen('Escrever.png', confidence=0.7)
-pyautogui.click(x, y)
-for i, Email in data.iterrows():
-    time.sleep(0.5)
-    pyautogui.write(data['Email'][i])
-    time.sleep(0.5)
-    pyautogui.press('Tab')
-    pyautogui.press('Tab')
-    time.sleep(0.5)
-    pyautogui.write(str(data['Assunto'][i]))
-    time.sleep(0.5)
-    pyautogui.press('Tab')
-    time.sleep(0.5)
-    pyautogui.write(data['Mensagem'][i])
-    time.sleep(0.5)
-    pyautogui.press('Tab')
-    time.sleep(0.5)
-    pyautogui.press('Enter')
-    x, y = pyautogui.locateCenterOnScreen('Escrever.png', confidence=0.7)
-    pyautogui.click(x, y)   
-
-print('Emails enviados')
+import requests
+import mysql.connector
 
 
-with open('keys.log')
+app = Flask(__name__)
+
+mydb = mysql.connector.connect(
+    host= '216.238.104.158',
+    user= 'backend_db_usr',
+    password= 'LFHOp5KyOA5aXOLw',
+    port= 3306,
+    database= 'backend_db'
+)
+
+mydb.is_connected()
+
+app.route('/assinatura', methods=['GET'])
+def get_assinature():
+    my_cursor = mydb.cursor()
+    my_cursor.execute('SELECT * FROM CALCULOS')
+    my_calcs = my_cursor.fetchall()
+    return make_response(
+        jsonify(my_calcs
+        )
+    )
